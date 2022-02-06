@@ -1,0 +1,240 @@
+{%- liquid
+  assign s = section.settings
+  assign desktop_image = s.desktop_image
+  assign mobile_image = s.mobile_image
+  if mobile_image == blank
+    assign mobile_image = desktop_image
+  endif
+  assign overlay_text = s.overlay_text
+  assign button_title = s.button_title
+  assign button_link = s.button_link
+  if s.button_link == blank
+    assign button_link = "#"
+  endif
+  if desktop_image.aspect_ratio == blank
+    assign desktop_ratio = 2.0
+  else
+    assign desktop_ratio = desktop_image.aspect_ratio
+  endif
+  if mobile_image.aspect_ratio == blank
+    assign mobile_ratio = 2.0
+  else
+    assign mobile_ratio = mobile_image.aspect_ratio
+  endif
+-%}
+
+<section>
+  {%- unless desktop_image == blank -%}
+    <div class="image__wrapper desktop-only">
+      <img
+        src="{{- desktop_image | img_url: '1920x' -}}"
+        sizes="auto"
+        loading="lazy"
+        alt="{{- desktop_image.alt | escape -}}"
+        srcset=" {{ desktop_image | img_url: '768x' }} 768w,
+        {{ desktop_image | img_url: '1024x' }} 1024w,
+        {{ desktop_image | img_url: '1280x' }} 1280w,
+        {{ desktop_image | img_url: '1440x' }} 1440w,
+        {{ desktop_image | img_url: '1920x' }} 1920w,
+        {{ desktop_image | img_url: '3000x' }} 3000w,
+        {{ desktop_image | img_url: '3840x' }} 3840w,
+        {{ desktop_image | img_url: 'master' }} {{ desktop_image.width }}w"
+      />
+    </div>
+  {%- else -%}
+    {{- 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' -}}
+  {%- endunless -%}
+
+  {%- unless mobile_image == blank -%}
+    <div class="image__wrapper mobile-only">
+      <img
+        src="{{- mobile_image | img_url: '767x' -}}"
+        sizes="auto"
+        loading="lazy"
+        alt="{{- mobile_image.alt | escape -}}"
+        srcset=" {{ mobile_image | img_url: '320x' }} 320w,
+        {{ mobile_image | img_url: '475x' }} 475w,
+        {{ mobile_image | img_url: '525x' }} 525w,
+        {{ mobile_image | img_url: '600x' }} 600w,
+        {{ mobile_image | img_url: 'master' }} {{ mobile_image.width }}w"
+      />
+    </div>
+  {%- else -%}
+    {{- 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' -}}
+  {%- endunless -%}
+
+  {%- unless overlay_text == blank -%}
+    <div class="content__wrapper">
+      <h1 class="title">{{- overlay_text -}}</h1>
+      {%- unless button_title == blank -%}
+        <a class="link" href="{{- button_link -}}">{{- button_title -}}</a>
+      {%- endunless -%}
+    </div>
+  {%- endunless -%}
+  <button id="scroll-toggler">
+    <img src="{{ 'arrow.png' | asset_url }}" />
+  </button>
+</section>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #shopify-section-{{ section.id }} section .image__wrapper {
+    width: 100%;
+  }
+
+  #shopify-section-{{ section.id }} section .image__wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  #shopify-section-{{ section.id }} section .content__wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shopify-section-{{ section.id }} section .content__wrapper {
+    margin-top: 15px;
+  }
+
+  #shopify-section-{{ section.id }} section .content__wrapper h1 {
+    max-width: 780px;
+    margin: 0;
+    padding: 0;
+    font-family: "GT America";
+    font-size: 150px;
+    line-height: 130px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  #shopify-section-{{ section.id }} section .content__wrapper a {
+    margin-top: 36px;
+    background: transparent;
+    font-family: "GT America", sans-serif;
+    color: white;
+    font-size: 16px;
+    line-height: 1.7;
+    text-decoration: none;
+    border: 1px solid white;
+    padding: 13px 80px;
+    transition: ease-in-out 0.4s;
+  }
+
+  #shopify-section-{{ section.id }} section .content__wrapper a:hover {
+    color: black;
+    background: white;
+  }
+
+  #shopify-section-{{ section.id }} section #scroll-toggler {
+    position: absolute;
+    bottom: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transform: rotate(90deg);
+  }
+
+  #shopify-section-{{ section.id }} section #scroll-toggler img {
+    display: block;
+  }
+
+  @media only screen and (max-width: 767px) {
+    #shopify-section-{{ section.id }} section .content__wrapper {
+      margin-top: 25px;
+    }
+
+    #shopify-section-{{ section.id }} section .content__wrapper h1 {
+      max-width: 300px;
+      font-size: 60px;
+      line-height: 1;
+    }
+
+    #shopify-section-{{ section.id }} section .content__wrapper a {
+      margin-top: 28px;
+      padding: 13px 50px;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+
+    #shopify-section-{{ section.id }} section #scroll-toggler {
+      display: none;
+    }
+  }
+
+  @media only screen and (min-width: 768px) {
+    .mobile-only {
+      display: none;
+    }
+  }
+{%- endstyle -%}
+<script>
+  document.getElementById("scroll-toggler").addEventListener("click", () => {
+    const section = document.getElementById("shopify-section-{{- section.id -}}");
+    const scrollTop = section.offsetHeight + section.offsetTop;
+
+    window.scroll({top: scrollTop, behavior: "smooth"});
+  });
+</script>
+{% schema %}
+{
+  "name": "Image with text overlay",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Specific image for mobile"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "overlay_text",
+      "label": "Overlay heading"
+    },
+    {
+      "type": "text",
+      "id": "button_title",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with text overlay",
+      "category": "Image with text overlay"
+    }
+  ]
+}
+{% endschema %}
